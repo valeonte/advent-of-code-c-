@@ -1,6 +1,6 @@
 # Advent of Code Solutions in C#
 
-I found out about Advent of Code shortly before its 2018 countdown started so I decided 
+I found out about [Advent of Code](https://adventofcode.com) shortly before its 2018 countdown started so I decided 
 to go for it - not learning any new languages or anything, just using what I already know to finish it 
 without spending too much time (supposedly).
 
