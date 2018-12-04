@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyAdventOfCodeSolution
+namespace MyAdventOfCodeSolution.Christmas2018
 {
-    class Day1
+    class Day1 : IDay
     {
         readonly int[] _sequence =
         {
@@ -1035,21 +1035,23 @@ namespace MyAdventOfCodeSolution
             -137490,
         };
 
-        public int Answer1()
+        const int MaxIterations = 500;
+
+        public string Answer1()
         {
-            return _sequence.Sum();
+            return _sequence.Sum().ToString();
         }
 
-        public int Answer2(int maxIterations)
+        public string Answer2()
         {
             var seenFrequencies = new HashSet<int> {0};
             var lastFrequency = 0;
-            for (var rep = 0; rep < maxIterations; rep++)
+            for (var rep = 0; rep < MaxIterations; rep++)
                 foreach (var next in _sequence)
                 {
                     lastFrequency += next;
                     if (seenFrequencies.Contains(lastFrequency))
-                        return lastFrequency;
+                        return lastFrequency.ToString();
 
                     seenFrequencies.Add(lastFrequency);
                 }

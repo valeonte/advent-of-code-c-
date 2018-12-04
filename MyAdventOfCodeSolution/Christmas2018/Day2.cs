@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyAdventOfCodeSolution
+namespace MyAdventOfCodeSolution.Christmas2018
 {
-    class Day2
+    class Day2 : IDay
     {
         readonly string[] _boxIds =
         {
@@ -260,7 +260,7 @@ namespace MyAdventOfCodeSolution
             "agirmcjvlhedbdyoqbzwknpxwt"
         };
 
-        public int Answer1()
+        public string Answer1()
         {
             var cnt2 = 0;
             var cnt3 = 0;
@@ -271,7 +271,7 @@ namespace MyAdventOfCodeSolution
                 if (charCounts.Contains(3)) cnt3++;
             }
 
-            return cnt3 * cnt2;
+            return (cnt3 * cnt2).ToString();
         }
 
         public string Answer2()
