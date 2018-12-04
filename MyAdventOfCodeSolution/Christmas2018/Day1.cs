@@ -6,6 +6,30 @@ namespace MyAdventOfCodeSolution.Christmas2018
 {
     class Day1 : IDay
     {
+        const int MaxIterations = 500;
+
+        public string Answer1()
+        {
+            return _sequence.Sum().ToString();
+        }
+
+        public string Answer2()
+        {
+            var seenFrequencies = new HashSet<int> {0};
+            var lastFrequency = 0;
+            for (var rep = 0; rep < MaxIterations; rep++)
+                foreach (var next in _sequence)
+                {
+                    lastFrequency += next;
+                    if (seenFrequencies.Contains(lastFrequency))
+                        return lastFrequency.ToString();
+
+                    seenFrequencies.Add(lastFrequency);
+                }
+
+            throw new InvalidOperationException();
+        }
+
         readonly int[] _sequence =
         {
             16,
@@ -1034,29 +1058,5 @@ namespace MyAdventOfCodeSolution.Christmas2018
             -18,
             -137490,
         };
-
-        const int MaxIterations = 500;
-
-        public string Answer1()
-        {
-            return _sequence.Sum().ToString();
-        }
-
-        public string Answer2()
-        {
-            var seenFrequencies = new HashSet<int> {0};
-            var lastFrequency = 0;
-            for (var rep = 0; rep < MaxIterations; rep++)
-                foreach (var next in _sequence)
-                {
-                    lastFrequency += next;
-                    if (seenFrequencies.Contains(lastFrequency))
-                        return lastFrequency.ToString();
-
-                    seenFrequencies.Add(lastFrequency);
-                }
-
-            throw new InvalidOperationException();
-        }
     }
 }

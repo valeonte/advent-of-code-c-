@@ -6,6 +6,44 @@ namespace MyAdventOfCodeSolution.Christmas2018
 {
     class Day2 : IDay
     {
+        public string Answer1()
+        {
+            var cnt2 = 0;
+            var cnt3 = 0;
+            foreach (var boxId in _boxIds)
+            {
+                var charCounts = new HashSet<int>(boxId.GroupBy(x => x).Select(x => x.Count()));
+                if (charCounts.Contains(2)) cnt2++;
+                if (charCounts.Contains(3)) cnt3++;
+            }
+
+            return (cnt3 * cnt2).ToString();
+        }
+
+        public string Answer2()
+        {
+            for (var i = 0; i < _boxIds.Length; i++)
+            for (var j = i+1; j < _boxIds.Length; j++)
+            {
+                var boxId1 = _boxIds[i];
+                var boxId2 = _boxIds[j];
+
+                for (var k = 0; k < boxId1.Length; k++)
+                {
+                    var failed = false;
+                    for (var l = 0; l < boxId1.Length; l++)
+                    {
+                        if (k == l) continue;
+                        failed = boxId1[l] != boxId2[l];
+                        if (failed) break;
+                    }
+                    if (!failed) return boxId1.Remove(k,1);
+                }
+            }
+
+            throw new InvalidOperationException();
+        }
+
         readonly string[] _boxIds =
         {
             "ayitmcjvlhedbsyoqfzukjpxwt",
@@ -259,43 +297,5 @@ namespace MyAdventOfCodeSolution.Christmas2018
             "ayirmcjvlhedbsyaqfzuknwxwt",
             "agirmcjvlhedbdyoqbzwknpxwt"
         };
-
-        public string Answer1()
-        {
-            var cnt2 = 0;
-            var cnt3 = 0;
-            foreach (var boxId in _boxIds)
-            {
-                var charCounts = new HashSet<int>(boxId.GroupBy(x => x).Select(x => x.Count()));
-                if (charCounts.Contains(2)) cnt2++;
-                if (charCounts.Contains(3)) cnt3++;
-            }
-
-            return (cnt3 * cnt2).ToString();
-        }
-
-        public string Answer2()
-        {
-            for (var i = 0; i < _boxIds.Length; i++)
-            for (var j = i+1; j < _boxIds.Length; j++)
-            {
-                var boxId1 = _boxIds[i];
-                var boxId2 = _boxIds[j];
-
-                for (var k = 0; k < boxId1.Length; k++)
-                {
-                    var failed = false;
-                    for (var l = 0; l < boxId1.Length; l++)
-                    {
-                        if (k == l) continue;
-                        failed = boxId1[l] != boxId2[l];
-                        if (failed) break;
-                    }
-                    if (!failed) return boxId1.Remove(k,1);
-                }
-            }
-
-            throw new InvalidOperationException();
-        }
     }
 }

@@ -36,8 +36,64 @@ namespace MyAdventOfCodeSolution.Christmas2018
             public override string ToString() => $"#{Id} @ {Left},{Top}: {Width}x{Height}";
         }
 
-        readonly string[] _claimsString =
+        readonly Claim[] _claims;
+        readonly int _fabricWidth, _fabricHeight;
+
+        public Day3()
         {
+            _claims = _claimsString.Select(c => new Claim(c)).ToArray();
+            _fabricWidth = _claims.Select(c => c.Left + c.Width).Max();
+            _fabricHeight = _claims.Select(c => c.Top + c.Height).Max();
+        }
+
+        int[,] _fabricSquares;
+        int[,] FabricSquares => _fabricSquares ?? (_fabricSquares = CalculateFabricSquares());
+
+        int[,] CalculateFabricSquares()
+        {
+            var ret = new int[_fabricWidth, _fabricHeight];
+
+            foreach (var claim in _claims)
+            {
+                for (var x = claim.Left; x < claim.Left + claim.Width; x++)
+                for (var y = claim.Top; y < claim.Top + claim.Height; y++)
+                    ret[x, y]++;
+            }
+
+            return ret;
+        }
+
+        public string Answer1()
+        {
+            var cnt = FabricSquares.Cast<int>().Count(s => s > 1);
+
+            return cnt.ToString();
+        }
+
+        public string Answer2()
+        {
+            foreach (var claim in _claims)
+            {
+                var failed = false;
+                for (var x = claim.Left; x < claim.Left + claim.Width; x++)
+                {
+                    for (var y = claim.Top; y < claim.Top + claim.Height; y++)
+                    {
+                        failed = FabricSquares[x, y] > 1;
+                        if (failed) break;
+                    }
+
+                    if (failed) break;
+                }
+
+                if (!failed) return claim.Id.ToString();
+            }
+
+            throw new InvalidOperationException("No appropriate claim found!");
+        }
+
+        readonly string[] _claimsString =
+{
             "#1 @ 185,501: 17x15",
             "#2 @ 821,899: 25x21",
             "#3 @ 534,609: 17x26",
@@ -1450,61 +1506,5 @@ namespace MyAdventOfCodeSolution.Christmas2018
             "#1410 @ 766,114: 15x10",
             "#1411 @ 877,70: 27x17"
         };
-
-        readonly Claim[] _claims;
-        readonly int _fabricWidth, _fabricHeight;
-
-        public Day3()
-        {
-            _claims = _claimsString.Select(c => new Claim(c)).OrderByDescending(c => c.Left + c.Width).ToArray();
-            _fabricWidth = _claims.Select(c => c.Left + c.Width).First();
-            _fabricHeight = _claims.Select(c => c.Top + c.Height).Max();
-        }
-
-        int[,] _fabricSquares;
-        int[,] FabricSquares => _fabricSquares ?? (_fabricSquares = CalculateFabricSquares());
-
-        int[,] CalculateFabricSquares()
-        {
-            var ret = new int[_fabricWidth, _fabricHeight];
-
-            foreach (var claim in _claims)
-            {
-                for (var x = claim.Left; x < claim.Left + claim.Width; x++)
-                for (var y = claim.Top; y < claim.Top + claim.Height; y++)
-                    ret[x, y]++;
-            }
-
-            return ret;
-        }
-
-        public string Answer1()
-        {
-            var cnt = FabricSquares.Cast<int>().Count(s => s > 1);
-
-            return cnt.ToString();
-        }
-
-        public string Answer2()
-        {
-            foreach (var claim in _claims)
-            {
-                var failed = false;
-                for (var x = claim.Left; x < claim.Left + claim.Width; x++)
-                {
-                    for (var y = claim.Top; y < claim.Top + claim.Height; y++)
-                    {
-                        failed = FabricSquares[x, y] > 1;
-                        if (failed) break;
-                    }
-
-                    if (failed) break;
-                }
-
-                if (!failed) return claim.Id.ToString();
-            }
-
-            throw new InvalidOperationException("No appropriate claim found!");
-        }
     }
 }
