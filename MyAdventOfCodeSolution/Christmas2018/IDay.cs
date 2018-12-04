@@ -2,7 +2,7 @@
 {
     interface IDay
     {
-        string Answer1();
-        string Answer2();
+        dynamic Answer1();
+        dynamic Answer2();
     }
 }
