@@ -1,12 +1,14 @@
 ﻿using System.IO;
 
-namespace MyAdventOfCodeSolution.Christmas2018
+namespace MyAdventOfCodeSolution
 {
     abstract class Day : IDay
     {
         protected string[] GetRawInput()
         {
-            var inputFile = $@".\Christmas2018\inputs\{GetType().Name}.txt";
+            var t = GetType();
+            var year = t.Namespace.Substring(t.Namespace.Length - 4);
+            var inputFile = $@".\Christmas{year}\inputs\{t.Name}.txt";
             return File.ReadAllLines(inputFile);
         }
 

@@ -1,4 +1,4 @@
-﻿namespace MyAdventOfCodeSolution.Christmas2018
+﻿namespace MyAdventOfCodeSolution
 {
     interface IDay
     {
