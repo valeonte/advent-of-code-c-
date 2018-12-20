@@ -9,28 +9,28 @@ namespace MyAdventOfCodeSolution.Christmas2018
 {
     class Day16 : Day
     {
-        interface IOperation
+        public interface IOperation
         {
             string Name { get; }
-            int[] ApplyToRegisters(int[] registers, int inputA, int inputB, int output);
-            bool OperationMatches(int[] registersBefore, int[] input, int[] registersAfter);
+            long[] ApplyToRegisters(long[] registers, long inputA, long inputB, long output);
+            bool OperationMatches(long[] registersBefore, long[] input, long[] registersAfter);
         }
 
         abstract class Operation : IOperation, IEquatable<Operation>
         {
             public string Name { get; }
 
-            protected readonly Func<int, int, int> Function;
+            protected readonly Func<long, long, long> Function;
 
-            protected Operation(string name, Func<int, int, int> function)
+            protected Operation(string name, Func<long, long, long> function)
             {
                 Function = function;
                 Name = name;
             }
 
-            public abstract int[] ApplyToRegisters(int[] registers, int inputA, int inputB, int output);
+            public abstract long[] ApplyToRegisters(long[] registers, long inputA, long inputB, long output);
 
-            public bool OperationMatches(int[] registersBefore, int[] input, int[] registersAfter)
+            public bool OperationMatches(long[] registersBefore, long[] input, long[] registersAfter)
             {
                 var opRegistersAfter = ApplyToRegisters(registersBefore, input[1], input[2], input[3]);
                 return opRegistersAfter.SequenceEqual(registersAfter);
@@ -59,27 +59,27 @@ namespace MyAdventOfCodeSolution.Christmas2018
 
         class RegisterRegisterOperation : Operation
         {
-            public RegisterRegisterOperation(string name, Func<int, int, int> function) : base(name, function)
+            public RegisterRegisterOperation(string name, Func<long, long, long> function) : base(name, function)
             {
             }
 
-            public override int[] ApplyToRegisters(int[] registers, int inputA, int inputB, int output)
+            public override long[] ApplyToRegisters(long[] registers, long inputA, long inputB, long output)
             {
-                var ret = (int[]) registers.Clone();
-                ret[output] = Function(registers[inputA], registers[inputB]);
+                var ret = registers;// (long[]) registers.Clone();
+                ret[output] = Function(registers[inputA], inputB < registers.Length ? registers[inputB] : 0); // input B might be ignored
                 return ret;
             }
         }
 
         class RegisterImmediateOperation : Operation
         {
-            public RegisterImmediateOperation(string name, Func<int, int, int> function) : base(name, function)
+            public RegisterImmediateOperation(string name, Func<long, long, long> function) : base(name, function)
             {
             }
 
-            public override int[] ApplyToRegisters(int[] registers, int inputA, int inputB, int output)
+            public override long[] ApplyToRegisters(long[] registers, long inputA, long inputB, long output)
             {
-                var ret = (int[])registers.Clone();
+                var ret = registers;//(long[])registers.Clone();
                 ret[output] = Function(registers[inputA], inputB);
                 return ret;
             }
@@ -87,19 +87,19 @@ namespace MyAdventOfCodeSolution.Christmas2018
 
         class ImmediateRegisterOperation : Operation
         {
-            public ImmediateRegisterOperation(string name, Func<int, int, int> function) : base(name, function)
+            public ImmediateRegisterOperation(string name, Func<long, long, long> function) : base(name, function)
             {
             }
 
-            public override int[] ApplyToRegisters(int[] registers, int inputA, int inputB, int output)
+            public override long[] ApplyToRegisters(long[] registers, long inputA, long inputB, long output)
             {
-                var ret = (int[])registers.Clone();
-                ret[output] = Function(inputA, registers[inputB]);
+                var ret = registers;//(long[])registers.Clone();
+                ret[output] = Function(inputA, inputB < registers.Length ? registers[inputB] : 0); // input B might be ignored
                 return ret;
             }
         }
 
-        static readonly IOperation[] Operations =
+        public static readonly IOperation[] Operations =
         {
             new RegisterRegisterOperation("addr", (a, b) => a + b),
             new RegisterImmediateOperation("addi", (a, b) => a + b),
@@ -125,7 +125,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
             new RegisterRegisterOperation("eqrr", (a, b) => a == b ? 1 : 0)
         };
 
-        static IEnumerable<IOperation> BehavesLike(int[] registersBefore, int[] input, int[] registersAfter)
+        static IEnumerable<IOperation> BehavesLike(long[] registersBefore, long[] input, long[] registersAfter)
         {
             return Operations.Where(op => op.OperationMatches(registersBefore, input, registersAfter));
         }
@@ -136,8 +136,8 @@ namespace MyAdventOfCodeSolution.Christmas2018
 
         public override dynamic Answer1()
         {
-            int[] registersBefore = null;
-            int[] input = null;
+            long[] registersBefore = null;
+            long[] input = null;
 
             var cnt = 0;
             foreach (var line in GetRawInput())
@@ -145,14 +145,14 @@ namespace MyAdventOfCodeSolution.Christmas2018
                 var match = BeforeRegex.Match(line);
                 if (match.Success)
                 {
-                    registersBefore = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                    registersBefore = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                     continue;
                 }
 
                 match = InputRegex.Match(line);
                 if (match.Success)
                 {
-                    input = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                    input = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                     continue;
                 }
 
@@ -162,7 +162,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
                 // we don't have a full set
                 if (registersBefore == null || input == null) throw new InvalidOperationException();
 
-                var registersAfter = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                var registersAfter = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                 if (BehavesLike(registersBefore, input, registersAfter).Count() > 2) cnt++;
 
                 registersBefore = input = null;
@@ -178,7 +178,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
             var startRunning = false;
             var seqEmptyCount = 0;
             // running the program
-            var registers = new int[4];
+            var registers = new long[4];
             foreach (var line in GetRawInput())
             {
                 if (string.IsNullOrWhiteSpace(line))
@@ -194,7 +194,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
                 var match = InputRegex.Match(line);
                 if (!match.Success) throw new InvalidOperationException();
 
-                var input = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                var input = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                 var op = opcodes[input[0]];
                 registers = op.ApplyToRegisters(registers, input[1], input[2], input[3]);
             }
@@ -205,11 +205,11 @@ namespace MyAdventOfCodeSolution.Christmas2018
         IOperation[] GetOperationMap()
         {
             var opcodes = new IOperation[16];
-            var foundCodes = new HashSet<int>();
+            var foundCodes = new HashSet<long>();
             var foundOps = new HashSet<string>();
 
-            int[] registersBefore = null;
-            int[] input = null;
+            long[] registersBefore = null;
+            long[] input = null;
 
             while (foundOps.Count < 16)
                 foreach (var line in GetRawInput())
@@ -217,14 +217,14 @@ namespace MyAdventOfCodeSolution.Christmas2018
                     var match = BeforeRegex.Match(line);
                     if (match.Success)
                     {
-                        registersBefore = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                        registersBefore = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                         continue;
                     }
 
                     match = InputRegex.Match(line);
                     if (match.Success)
                     {
-                        input = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                        input = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                         continue;
                     }
 
@@ -237,7 +237,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
                     var opcode = input[0];
                     if (!foundCodes.Contains(opcode))
                     {
-                        var registersAfter = match.Groups.Skip(1).Select(g => int.Parse(g.Value)).ToArray();
+                        var registersAfter = match.Groups.Skip(1).Select(g => long.Parse(g.Value)).ToArray();
                         var all = BehavesLike(registersBefore, input, registersAfter).ToArray();
                         var behavesLike = all.Where(o => !foundOps.Contains(o.Name)).ToArray();
                         if (behavesLike.Length != 1) continue;
@@ -255,9 +255,9 @@ namespace MyAdventOfCodeSolution.Christmas2018
 
         void Test()
         {
-            var regBefore = new[] {3, 2, 1, 1};
-            var input = new[] {9, 2, 1, 2};
-            var regAfter = new[] {3, 2, 2, 1};
+            var regBefore = new long[] {3, 2, 1, 1};
+            var input = new long[] {9, 2, 1, 2};
+            var regAfter = new long[] {3, 2, 2, 1};
 
             var o = BehavesLike(regBefore, input, regAfter).ToArray();
 
