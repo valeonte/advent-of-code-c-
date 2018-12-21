@@ -34,7 +34,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
             public override string ToString() => $"{Operation} {InputA} {InputB} {Output}";
         }
 
-        static long[] RunProgram(IReadOnlyList<string> instructions, long[] registers)
+        public static long[] RunProgram(IReadOnlyList<string> instructions, long[] registers, bool day19 = true, bool day21Answer1 = false, bool day21Answer2 = false)
         {
             var ret = (long[])registers.Clone();
 
@@ -49,7 +49,9 @@ namespace MyAdventOfCodeSolution.Christmas2018
             var sw = Stopwatch.StartNew();
 
             var processedInstructions = instructions.Select(i => new Instruction(i)).ToArray();
-
+            var cmdCounts = new HashSet<long>();
+            long lastGood = 0;
+            long lastChange = -1;
             while (ip + 1 < instructions.Count)
             {
                 cmdCount++;
@@ -60,7 +62,7 @@ namespace MyAdventOfCodeSolution.Christmas2018
                 // update the ip register with the ip value
                 ret[ipRegister] = ip;
 
-                if (ip == 9 && ret[1] == 10_551_311 && ret[5] < ret[1])
+                if (day19 && ip == 9 && ret[1] == 10_551_311 && ret[5] < ret[1])
                 {
                     if (ret[2] < 2 || ret[1] % ret[2] != 0)
                         ret[5] = ret[1];
@@ -80,13 +82,30 @@ namespace MyAdventOfCodeSolution.Christmas2018
 
                 //var log1 = $"ip={ip} [{string.Join(", ", ret)}]";
 
-                // execute the command
-                //parts = instruction.Split(' ');
-                //var op = Operations[parts[0]];
-                //ret = op.ApplyToRegisters(ret, long.Parse(parts[1]), long.Parse(parts[2]), long.Parse(parts[3]));
                 ret = instr.Apply(ret);
 
                 //Console.WriteLine($"{log1} {instr} [{string.Join(", ", ret)}]");
+                if (day21Answer1 && ip == 28)
+                {
+                    return ret;
+                }
+
+                if (day21Answer2 && ip == 28)
+                {
+                    if (!cmdCounts.Contains(ret[1]))
+                    {
+                        //if (cmdCounts.Count % 1000 == 0)
+                            //Console.WriteLine($"cmdCount: {cmdCount}, reg 1: {ret[1]}, set length: {cmdCounts.Count}");
+                        lastGood = ret[1];
+                        lastChange = cmdCount;
+                        cmdCounts.Add(lastGood);
+                    }
+                    else if (cmdCount - lastChange > 1000000000)
+                    {
+                        ret[1] = lastGood;
+                        return ret;
+                    }
+                }
 
                 // set the instruction point to the value of the instruction register
                 ip = ret[ipRegister];
@@ -94,9 +113,10 @@ namespace MyAdventOfCodeSolution.Christmas2018
                 // increase ip
                 ip++;
 
-                if (cmdCount % 100000 == 0)
+                if (cmdCount % 100000000 == 0)
                 {
                     //Console.WriteLine($"{cmdCount} commands, {cmdCount/(sw.ElapsedMilliseconds/1000.0)} commands per second");
+                    //Console.ReadKey();
                     //Console.WriteLine($"{instr} [{string.Join(", ", ret)}]");
                 }
             }
